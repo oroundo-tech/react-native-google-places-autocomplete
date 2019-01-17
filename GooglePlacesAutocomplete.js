@@ -147,6 +147,12 @@ export default class GooglePlacesAutocomplete extends Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.dataSource && prevState.dataSource.length !== this.state.dataSource.length) {
+      this.props.onResultNumberChange(this.state.dataSource.length)
+    }
+  }
+
   componentWillUnmount() {
     this._abortRequests();
     this._isMounted = false;
@@ -539,7 +545,7 @@ export default class GooglePlacesAutocomplete extends Component {
     }
 
     return (
-      <Text style={[{flex: 1}, this.props.suppressDefaultStyles ? {} : defaultStyles.description, this.props.styles.description, rowData.isPredefinedPlace ? this.props.styles.predefinedPlacesDescription : {}]}
+      <Text style={[{flex: 1}, defaultStyles.description, this.props.styles.description, rowData.isPredefinedPlace ? this.props.styles.predefinedPlacesDescription : {}]}
         numberOfLines={this.props.numberOfLines}
       >
         {this._renderDescription(rowData)}
@@ -558,7 +564,7 @@ export default class GooglePlacesAutocomplete extends Component {
   _renderLoader = (rowData) => {
     if (rowData.isLoading === true) {
       return (
-        <View style={[this.props.suppressDefaultStyles ? {} : defaultStyles.loader, this.props.styles.loader]}>
+        <View style={[defaultStyles.loader, this.props.styles.loader]}>
           {this._getRowLoader()}
         </View>
       );
@@ -581,7 +587,7 @@ export default class GooglePlacesAutocomplete extends Component {
           onPress={() => this._onPress(rowData)}
           underlayColor={this.props.listUnderlayColor || "#c8c7cc"}
         >
-          <View style={[this.props.suppressDefaultStyles ? {} : defaultStyles.row, this.props.styles.row, rowData.isPredefinedPlace ? this.props.styles.specialItemRow : {}]}>
+          <View style={[defaultStyles.row, this.props.styles.row, rowData.isPredefinedPlace ? this.props.styles.specialItemRow : {}]}>
             {this._renderRowData(rowData)}
             {this._renderLoader(rowData)}
           </View>
@@ -598,7 +604,7 @@ export default class GooglePlacesAutocomplete extends Component {
     return (
       <View
         key={ `${sectionID}-${rowID}` }
-        style={[this.props.suppressDefaultStyles ? {} : defaultStyles.separator, this.props.styles.separator]} />
+        style={[defaultStyles.separator, this.props.styles.separator]} />
     );
   }
 
@@ -619,10 +625,10 @@ export default class GooglePlacesAutocomplete extends Component {
 
     return (
       <View
-        style={[this.props.suppressDefaultStyles ? {} : defaultStyles.row, defaultStyles.poweredContainer, this.props.styles.poweredContainer]}
+        style={[defaultStyles.row, defaultStyles.poweredContainer, this.props.styles.poweredContainer]}
       >
         <Image
-          style={[this.props.suppressDefaultStyles ? {} : defaultStyles.powered, this.props.styles.powered]}
+          style={[defaultStyles.powered, this.props.styles.powered]}
           resizeMode='contain'
           source={require('./images/powered_by_google_on_white.png')}
         />
@@ -666,7 +672,7 @@ export default class GooglePlacesAutocomplete extends Component {
     if ((this.state.text !== '' || this.props.predefinedPlaces.length || this.props.currentLocation === true) && this.state.listViewDisplayed === true) {
       return (
         <FlatList
-          style={[this.props.suppressDefaultStyles ? {} : defaultStyles.listView, this.props.styles.listView]}
+          style={[defaultStyles.listView, this.props.styles.listView]}
           data={this.state.dataSource}
           keyExtractor={keyGenerator}
           extraData={[this.state.dataSource, this.props]}
@@ -688,12 +694,12 @@ export default class GooglePlacesAutocomplete extends Component {
     } = this.props.textInputProps;
     return (
       <View
-        style={[this.props.suppressDefaultStyles ? {} : defaultStyles.container, this.props.styles.container]}
+        style={[defaultStyles.container, this.props.styles.container]}
         pointerEvents="box-none"
       >
         {!this.props.textInputHide &&
           <View
-            style={[this.props.suppressDefaultStyles ? {} : defaultStyles.textInputContainer, this.props.styles.textInputContainer]}
+            style={[defaultStyles.textInputContainer, this.props.styles.textInputContainer]}
           >
             {this._renderLeftButton()}
             <TextInput
@@ -701,7 +707,7 @@ export default class GooglePlacesAutocomplete extends Component {
               editable={this.props.editable}
               returnKeyType={this.props.returnKeyType}
               autoFocus={this.props.autoFocus}
-              style={[this.props.suppressDefaultStyles ? {} : defaultStyles.textInput, this.props.styles.textInput]}
+              style={[defaultStyles.textInput, this.props.styles.textInput]}
               value={this.state.text}
               placeholder={this.props.placeholder}
               onSubmitEditing={this.props.onSubmitEditing}
@@ -733,6 +739,7 @@ GooglePlacesAutocomplete.propTypes = {
   onPress: PropTypes.func,
   onNotFound: PropTypes.func,
   onFail: PropTypes.func,
+  onResultNumberChange: PropTypes.func,
   minLength: PropTypes.number,
   fetchDetails: PropTypes.bool,
   autoFocus: PropTypes.bool,
@@ -763,7 +770,6 @@ GooglePlacesAutocomplete.propTypes = {
   isRowScrollable: PropTypes.bool,
   text: PropTypes.string,
   textInputHide: PropTypes.bool,
-  suppressDefaultStyles: PropTypes.bool,
   numberOfLines: PropTypes.number,
   onSubmitEditing: PropTypes.func,
   editable: PropTypes.bool
@@ -777,6 +783,7 @@ GooglePlacesAutocomplete.defaultProps = {
   onPress: () => {},
   onNotFound: () => {},
   onFail: () => {},
+  onResultNumberChange: () => {},
   minLength: 0,
   fetchDetails: false,
   autoFocus: false,
@@ -809,7 +816,6 @@ GooglePlacesAutocomplete.defaultProps = {
   listViewDisplayed: 'auto',
   debounce: 0,
   textInputHide: false,
-  suppressDefaultStyles: false,
   numberOfLines: 1,
   onSubmitEditing: () => {},
   editable: true
